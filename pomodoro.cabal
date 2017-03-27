@@ -11,6 +11,10 @@ maintainer:          Al Zohali <zohl@fmap.me>
 category:            Office
 build-type:          Simple
 cabal-version:       >=1.10
+data-files: res/Bell.mp3
+          , res/Inactive.png
+          , res/Relax.png
+          , res/Work.png
 
 
 source-repository head

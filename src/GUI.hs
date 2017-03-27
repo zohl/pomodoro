@@ -18,21 +18,21 @@ import System.Process (spawnProcess)
 
 import Common
 import Settings
+import Paths_pomodoro
 
 
 data Resources = Resources {
     icons        :: [(PomodoroStatus, Icon ())]
   }
 
-initResources :: FilePath -> IO Resources
-initResources base = do
-  icons' <- sequence $ (\s -> (s, ) <$> ((flip iconCreateFromFile sizeNull)
-                                         . ((base++"/")++) . (++".png") . show) s)
-                       <$> [Work, Relax, Inactive]
-  return $ Resources {
-      icons = icons' 
-    }
-
+initResources :: IO Resources
+initResources =
+  -- Get singular icon
+  let getIcon status = getDataFileName ("res/" ++ show status ++ ".png")
+                       >>= flip iconCreateFromFile sizeNull
+                       >>= \i -> return (status, i)
+  in do icons <- traverse getIcon [Work, Relax, Inactive]
+        return $ Resources icons
 
 setIcon :: Resources -> TaskBarIcon a -> PomodoroStatus -> IO ()
 setIcon res tbi status' = do
@@ -72,9 +72,9 @@ runGUI settings cbs = start $ initGUI where
 
   initGUI :: IO ()
   initGUI = do
-    base <- (normalise . joinPath . (:["..", "share/pomodoro"])) . takeDirectory <$> getExecutablePath 
-    
-    res  <- initResources base
+    base <- getDataDir
+
+    res  <- initResources
     tbi  <- taskBarIconCreate
 
     setIcon res tbi Inactive
