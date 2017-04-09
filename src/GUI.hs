@@ -61,19 +61,17 @@ showPopup summary' body' = display_ $
   <> (timeout $ Custom 8) 
 
 
-playSound :: String -> IO ()
-playSound sound = findExecutable "mpg321" >>= maybe
-  (putStrLn "cannot find mpg321")
-  (\player -> spawnProcess player [sound] >> return ())
-  
+playSound :: String -> String -> IO ()
+playSound player sound = findExecutable player >>= maybe
+     (putStrLn "cannot find soundProgram")
+     (\player -> spawnProcess player [sound] >> return ())
+
 
 runGUI :: Settings -> GUICallbacks -> IO () 
 runGUI settings cbs = start $ initGUI where
 
   initGUI :: IO ()
   initGUI = do
-    base <- getDataDir
-
     res  <- initResources
     tbi  <- taskBarIconCreate
 
@@ -81,11 +79,12 @@ runGUI settings cbs = start $ initGUI where
 
     (dialogFrame, withNameDialog) <- initNameDialog
     evtHandlerOnTaskBarIconEvent tbi (onTaskBarEvt tbi dialogFrame withNameDialog)
-    
+
+    bell <- getDataFileName "res/Bell.mp3"
     onInit cbs $ GUICallforths {
         iconUpdate        = setIcon res tbi
       , popupNotification = showPopup
-      , soundNotification = playSound (base++"/Bell.mp3")
+      , soundNotification = playSound (soundProgram settings) bell
     }
 
 

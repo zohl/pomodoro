@@ -33,6 +33,10 @@ data Settings = Settings {
   , askPomodoroName     :: Bool
     -- ^ If True, will ask a name for a new interval 
     -- (this will not affect command line interface).
+
+  , soundProgram        :: String
+    -- ^ Name of the program that will play the "bell" sound on each
+    -- pomodoro, defaults to mpg321.
   } deriving (Eq)
 
 
@@ -47,6 +51,7 @@ defaultSettings = Settings {
   , enablePopups        = True
   , enableSounds        = False
   , askPomodoroName     = False
+  , soundProgram        = "mpg321"
   }
 
 
@@ -61,6 +66,7 @@ instance Show Settings where
     , formatField "enablePopups"        enablePopups
     , formatField "enableSounds"        enableSounds
     , formatField "askPomodoroName"     askPomodoroName
+    , formatField "soundProgram"        soundProgram
     ] where
         formatField :: (Show a) => String -> (Settings -> a) -> String
         formatField key value = key ++ " = " ++ (show $ value settings)
@@ -90,6 +96,7 @@ parseSettings defaults contents = foldl parseLine defaults configLines where
       "enablePopups"        -> defaults' { enablePopups        = (read value :: Bool) }
       "enableSounds"        -> defaults' { enableSounds        = (read value :: Bool) }
       "askPomodoroName"     -> defaults' { askPomodoroName     = (read value :: Bool) }
+      "soundProgram"        -> defaults' { soundProgram        = (read value :: String) }
       _                     -> defaults'
 
 
