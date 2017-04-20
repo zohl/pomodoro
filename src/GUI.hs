@@ -14,7 +14,8 @@ import Libnotify ((<>), summary, body, timeout, Timeout(..), display_)
 import System.Directory (findExecutable)
 import System.Environment (getExecutablePath)
 import System.FilePath (normalise, joinPath, takeDirectory)
-import System.Process (spawnProcess)
+import System.Process (spawnProcess, waitForProcess)
+import Data.Functor (void)
 
 import Common
 import Settings
@@ -64,7 +65,7 @@ showPopup summary' body' = display_ $
 playSound :: String -> String -> IO ()
 playSound player sound = findExecutable player >>= maybe
      (putStrLn "cannot find soundProgram")
-     (\player -> spawnProcess player [sound] >> return ())
+     (\player -> spawnProcess player [sound] >>= void . waitForProcess)
 
 
 runGUI :: Settings -> GUICallbacks -> IO () 
