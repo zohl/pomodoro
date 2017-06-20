@@ -19,6 +19,7 @@ import Control.Exception.Base (handle, IOException)
 import System.Environment (getArgs, withArgs)
 import System.FilePath (joinPath)
 import Text.Heredoc
+import Data.Functor (void)
 
 import Common
 import Worker
@@ -100,7 +101,10 @@ runApp = do
                  (iconUpdate cfs) status
                  when (enablePopups settings) $
                    (popupNotification cfs) (map toLower $ show status) (interpret status)
-                 when (enableSounds settings) $ (soundNotification cfs)
+                 when (enableSounds settings) $
+                   void $ forkIO (soundNotification cfs)
+                   -- forkIO is neccessary because soundNotification
+                   -- will spawn a process and thus block the GUI thread
 
              , onPomodoroEnd = \n name startTime endTime -> appendFile logPath $ concat [
                    "Pomodoro #", (show n)
